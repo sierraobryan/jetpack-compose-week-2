@@ -127,7 +127,8 @@ fun MyApp(mainViewModel: MainViewModel, modifier: Modifier = Modifier) {
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(start = 40.dp, end = 40.dp, top = 120.dp),
+                .fillMaxHeight()
+                .padding(start = 40.dp, end = 40.dp, bottom = 200.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
