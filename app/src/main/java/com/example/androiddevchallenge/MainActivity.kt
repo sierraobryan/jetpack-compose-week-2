@@ -19,9 +19,15 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
@@ -34,6 +40,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.androiddevchallenge.ui.theme.MyTheme
@@ -42,6 +49,7 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
+    @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -52,7 +60,7 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-// Start building your app here!
+@ExperimentalAnimationApi
 @Composable
 fun MyApp(mainViewModel: MainViewModel, modifier: Modifier = Modifier) {
 
@@ -62,41 +70,72 @@ fun MyApp(mainViewModel: MainViewModel, modifier: Modifier = Modifier) {
     val running = mainViewModel.running.observeAsState()
 
     Surface(color = MaterialTheme.colors.background) {
-        Column() {
-            Text(text = "Ready... Set... GO!")
-            Row(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(40.dp)
-                    .align(Alignment.CenterHorizontally),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TimeColumn(value = hours.value, enabled = running.value == false) { mainViewModel.modifyTime(TimeUnit.HOUR, it) }
-                Text(text = " : ", fontSize = 32.sp)
-                TimeColumn(value = minutes.value, enabled = running.value == false) { mainViewModel.modifyTime(TimeUnit.MIN, it) }
-                Text(text = " : ", fontSize = 32.sp)
-                TimeColumn(value = seconds.value, enabled = running.value == false) { mainViewModel.modifyTime(TimeUnit.SEC, it) }
-            }
-            Row(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(start = 40.dp, end = 40.dp,)
-                    .align(Alignment.CenterHorizontally),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .padding(40.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TimeColumn(value = hours.value, enabled = running.value != true) { mainViewModel.modifyTime(TimeUnit.HOUR, it) }
+            Text(text = " : ", fontSize = 32.sp)
+            TimeColumn(value = minutes.value, enabled = running.value != true) { mainViewModel.modifyTime(TimeUnit.MIN, it) }
+            Text(text = " : ", fontSize = 32.sp)
+            TimeColumn(value = seconds.value, enabled = running.value != true) { mainViewModel.modifyTime(TimeUnit.SEC, it) }
+        }
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .padding(start = 40.dp, end = 40.dp, top = 200.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AnimatedVisibility(visible = running.value != true) {
                 Button(onClick = { mainViewModel.startCountDown() }) {
                     Text(text = "Start")
                 }
+            }
+        }
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .padding(start = 40.dp, end = 40.dp, top = 200.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AnimatedVisibility(
+                visible = running.value == true,
+            ) {
                 Button(onClick = { mainViewModel.cancel() }) {
                     Text(text = "Cancel")
                 }
             }
         }
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(start = 40.dp, end = 40.dp, top = 60.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "Ready... Set... GO!", fontSize = 24.sp)
+            AnimatedVisibility(
+                visible = running.value != true,
+                exit = slideOut(
+                    targetOffset = { intSize -> IntOffset(intSize.height + 40, - intSize.width - 40) },
+                    animationSpec = tween(durationMillis = 250, easing = FastOutLinearInEasing)
+                )
+            ) {
+                Text(text = String(Character.toChars(0x1F680)), fontSize = 24.sp)
+            }
+        }
     }
 }
 
+@ExperimentalAnimationApi
 @Composable
 fun TimeColumn(value: Int?, enabled: Boolean, function: (Operation) -> Unit) {
     Column(
@@ -108,20 +147,25 @@ fun TimeColumn(value: Int?, enabled: Boolean, function: (Operation) -> Unit) {
     }
 }
 
+@ExperimentalAnimationApi
 @Composable
 fun IncrementButton(operation: Operation, enabled: Boolean, function: (Operation) -> Unit) {
-    Button(
-        onClick = { function.invoke(operation) },
-        enabled = enabled,
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = MaterialTheme.colors.background,
-            disabledBackgroundColor = MaterialTheme.colors.background
-        ),
-        elevation = ButtonDefaults.elevation(defaultElevation = 0.dp)
+    AnimatedVisibility(
+        visible = enabled
     ) {
-        Text(
-            text = if (operation == Operation.ADD) "++" else "--",
-            fontWeight = FontWeight.Bold, fontSize = 24.sp
-        )
+        Button(
+            onClick = { function.invoke(operation) },
+            enabled = enabled,
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = MaterialTheme.colors.background,
+                disabledBackgroundColor = MaterialTheme.colors.background
+            ),
+            elevation = ButtonDefaults.elevation(defaultElevation = 0.dp)
+        ) {
+            Text(
+                text = if (operation == Operation.ADD) "++" else "--",
+                fontWeight = FontWeight.Bold, fontSize = 24.sp
+            )
+        }
     }
 }
