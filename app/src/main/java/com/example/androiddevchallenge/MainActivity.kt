@@ -15,7 +15,9 @@
  */
 package com.example.androiddevchallenge
 
+import android.content.Context
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -39,6 +41,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -63,6 +66,9 @@ class MainActivity : AppCompatActivity() {
 @ExperimentalAnimationApi
 @Composable
 fun MyApp(mainViewModel: MainViewModel, modifier: Modifier = Modifier) {
+
+    val width = (LocalContext.current.getSystemService(Context.WINDOW_SERVICE) as WindowManager)
+        .defaultDisplay.width
 
     val seconds = mainViewModel.seconds.observeAsState()
     val minutes = mainViewModel.minutes.observeAsState()
@@ -94,7 +100,10 @@ fun MyApp(mainViewModel: MainViewModel, modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             AnimatedVisibility(visible = running.value != true) {
-                Button(onClick = { mainViewModel.startCountDown() }) {
+                Button(
+                    onClick = { mainViewModel.startCountDown() },
+                    enabled = !((seconds.value ?: 0) == 0 && (minutes.value ?: 0) == 0 && (hours.value ?: 0) == 0)
+                ) {
                     Text(text = "Start")
                 }
             }
@@ -123,13 +132,21 @@ fun MyApp(mainViewModel: MainViewModel, modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = "3... 2... 1... Blast off!", fontSize = 24.sp)
+        }
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .padding(start = 40.dp, bottom = 40.dp),
+            verticalAlignment = Alignment.Bottom
+        ) {
             AnimatedVisibility(
                 visible = finished.value != true,
                 exit = slideOut(
                     targetOffset = { intSize ->
-                        IntOffset(intSize.height + 60, - intSize.width - 60)
+                        IntOffset(intSize.height + width, - intSize.width - width)
                     },
-                    animationSpec = tween(durationMillis = 250, easing = FastOutLinearInEasing)
+                    animationSpec = tween(durationMillis = 800, easing = FastOutLinearInEasing)
                 )
             ) {
                 Text(text = String(Character.toChars(0x1F680)), fontSize = 24.sp)

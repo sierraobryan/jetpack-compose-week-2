@@ -62,7 +62,7 @@ class MainViewModel : ViewModel() {
             override fun onFinish() {
                 viewModelScope.launch {
                     finished.postValue(true)
-                    delay(1500)
+                    delay(2000)
                     running.postValue(false)
                     finished.postValue(false)
                 }
