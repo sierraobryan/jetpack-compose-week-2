@@ -18,6 +18,9 @@ package com.example.androiddevchallenge
 import android.os.CountDownTimer
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 enum class Operation {
     ADD, SUBTRACT
@@ -35,6 +38,7 @@ class MainViewModel : ViewModel() {
     val minutes = MutableLiveData(1)
     val hours = MutableLiveData(0)
     val running = MutableLiveData(false)
+    val finished = MutableLiveData(false)
 
     fun startCountDown() {
         cancel()
@@ -56,7 +60,12 @@ class MainViewModel : ViewModel() {
             }
 
             override fun onFinish() {
-                seconds.postValue(10)
+                viewModelScope.launch {
+                    finished.postValue(true)
+                    delay(1500)
+                    running.postValue(false)
+                    finished.postValue(false)
+                }
             }
         }
         pauseTimer?.start()

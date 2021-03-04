@@ -68,6 +68,7 @@ fun MyApp(mainViewModel: MainViewModel, modifier: Modifier = Modifier) {
     val minutes = mainViewModel.minutes.observeAsState()
     val hours = mainViewModel.hours.observeAsState()
     val running = mainViewModel.running.observeAsState()
+    val finished = mainViewModel.finished.observeAsState()
 
     Surface(color = MaterialTheme.colors.background) {
         Row(
@@ -117,15 +118,17 @@ fun MyApp(mainViewModel: MainViewModel, modifier: Modifier = Modifier) {
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(start = 40.dp, end = 40.dp, top = 60.dp),
+                .padding(start = 40.dp, end = 40.dp, top = 120.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Ready... Set... GO!", fontSize = 24.sp)
+            Text(text = "3... 2... 1... Blast off!", fontSize = 24.sp)
             AnimatedVisibility(
-                visible = running.value != true,
+                visible = finished.value != true,
                 exit = slideOut(
-                    targetOffset = { intSize -> IntOffset(intSize.height + 40, - intSize.width - 40) },
+                    targetOffset = { intSize ->
+                        IntOffset(intSize.height + 60, - intSize.width - 60)
+                    },
                     animationSpec = tween(durationMillis = 250, easing = FastOutLinearInEasing)
                 )
             ) {
