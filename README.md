@@ -1,4 +1,4 @@
-# Put title of your app here
+# Count down to Blast off 
 
 <!--- Replace <OWNER> with your Github Username and <REPOSITORY> with the name of your repository. -->
 <!--- You can find both of these in the url bar when you open your repository in github. -->
@@ -6,12 +6,10 @@
 
 
 ## :scroll: Description
-<!--- Describe your app in one or two sentences -->
-
+A helpful countdown timer to help LAUNCH you into your next task
 
 ## :bulb: Motivation and Context
-<!--- Optionally point readers to interesting parts of your submission. -->
-<!--- What are you especially proud of? -->
+Make sure to stick around to the end 
 
 
 ## :camera_flash: Screenshots
