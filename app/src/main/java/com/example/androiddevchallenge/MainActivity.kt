@@ -24,14 +24,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
@@ -41,7 +46,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -75,8 +82,41 @@ fun MyApp(mainViewModel: MainViewModel, modifier: Modifier = Modifier) {
     val hours = mainViewModel.hours.observeAsState()
     val running = mainViewModel.running.observeAsState()
     val finished = mainViewModel.finished.observeAsState()
+    val launch = mainViewModel.launch.observeAsState()
+    val progress = mainViewModel.progress.observeAsState()
 
     Surface(color = MaterialTheme.colors.background) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AnimatedVisibility(
+                visible = finished.value == true,
+                enter = slideIn(
+                    initialOffset = { intSize ->
+                        IntOffset(2 * width, (.1 * intSize.width).toInt())
+                    },
+                    animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+                ),
+                exit = slideOut(
+                    targetOffset = { intSize ->
+                        IntOffset(-2 * width, (.1 * intSize.width).toInt())
+                    },
+                    animationSpec = tween(durationMillis = 500, easing = FastOutLinearInEasing)
+                )
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.moon),
+                    contentDescription = null,
+                    modifier = modifier
+                        .width((width - 40).dp)
+                        .height((width - 40).dp)
+                )
+            }
+        }
         Row(
             modifier = modifier
                 .fillMaxWidth()
@@ -134,6 +174,7 @@ fun MyApp(mainViewModel: MainViewModel, modifier: Modifier = Modifier) {
         ) {
             Text(text = "3... 2... 1... Blast off!", fontSize = 24.sp)
         }
+        StarContent()
         Row(
             modifier = modifier
                 .fillMaxWidth()
@@ -142,7 +183,7 @@ fun MyApp(mainViewModel: MainViewModel, modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.Bottom
         ) {
             AnimatedVisibility(
-                visible = finished.value != true,
+                visible = launch.value != true,
                 exit = slideOut(
                     targetOffset = { intSize ->
                         IntOffset(intSize.height + width, - intSize.width - width)
@@ -178,8 +219,8 @@ fun IncrementButton(operation: Operation, enabled: Boolean, function: (Operation
             onClick = { function.invoke(operation) },
             enabled = enabled,
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = MaterialTheme.colors.background,
-                disabledBackgroundColor = MaterialTheme.colors.background
+                backgroundColor = Color.Transparent,
+                disabledBackgroundColor = Color.Transparent
             ),
             elevation = ButtonDefaults.elevation(defaultElevation = 0.dp)
         ) {
@@ -188,5 +229,45 @@ fun IncrementButton(operation: Operation, enabled: Boolean, function: (Operation
                 fontWeight = FontWeight.Bold, fontSize = 24.sp
             )
         }
+    }
+}
+
+@Composable
+fun StarContent(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .padding(start = 10.dp, bottom = 65.dp),
+        verticalAlignment = Alignment.Bottom
+    ) {
+        Text(text = String(Character.toChars(0x2728)), fontSize = 24.sp)
+    }
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .padding(start = 50.dp, bottom = 75.dp),
+        verticalAlignment = Alignment.Bottom
+    ) {
+        Text(text = String(Character.toChars(0x2728)), fontSize = 24.sp)
+    }
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .padding(start = 85.dp, bottom = 40.dp),
+        verticalAlignment = Alignment.Bottom
+    ) {
+        Text(text = String(Character.toChars(0x2728)), fontSize = 24.sp)
+    }
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .padding(start = 65.dp, bottom = 10.dp),
+        verticalAlignment = Alignment.Bottom
+    ) {
+        Text(text = String(Character.toChars(0x2728)), fontSize = 24.sp)
     }
 }

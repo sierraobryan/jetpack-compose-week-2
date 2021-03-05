@@ -37,17 +37,20 @@ class MainViewModel : ViewModel() {
     val seconds = MutableLiveData(10)
     val minutes = MutableLiveData(1)
     val hours = MutableLiveData(0)
+    val progress = MutableLiveData(0.0f)
     val running = MutableLiveData(false)
     val finished = MutableLiveData(false)
+    val launch = MutableLiveData(false)
 
     fun startCountDown() {
         cancel()
-        pauseTimer = object : CountDownTimer((getTimeInSecond() * 1000).toLong(), 1000) {
+        pauseTimer = object : CountDownTimer((getTimeInSecond() * 1000).toLong(), 250) {
 
             override fun onTick(millisUntilFinished: Long) {
                 val hourTime = (millisUntilFinished / 1000 / 60 / 60).toInt()
                 val minuteTime = (millisUntilFinished / 1000 / 60 % 60).toInt()
                 val secondTime = (millisUntilFinished / 1000 % 60).toInt()
+                val progressValue = (millisUntilFinished / 1000 / 60.0).coerceIn(0.0, 1.0).toFloat()
                 if (secondTime != seconds.value) {
                     seconds.postValue(secondTime)
                 }
@@ -57,14 +60,20 @@ class MainViewModel : ViewModel() {
                 if (hourTime != hours.value) {
                     hours.postValue(hourTime)
                 }
+                if (progressValue != progress.value) {
+                    progress.postValue(progressValue)
+                }
             }
 
             override fun onFinish() {
                 viewModelScope.launch {
                     finished.postValue(true)
+                    delay(500)
+                    launch.postValue(true)
                     delay(2000)
                     running.postValue(false)
                     finished.postValue(false)
+                    launch.postValue(false)
                 }
             }
         }
