@@ -238,6 +238,15 @@ fun StarContent(modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .fillMaxHeight()
+            .padding(start = 10.dp, bottom = 10.dp),
+        verticalAlignment = Alignment.Bottom
+    ) {
+        Text(text = String(Character.toChars(0x1F30E)), fontSize = 24.sp)
+    }
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
             .padding(start = 10.dp, bottom = 65.dp),
         verticalAlignment = Alignment.Bottom
     ) {
